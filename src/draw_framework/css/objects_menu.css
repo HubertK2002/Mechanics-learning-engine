@@ -1,0 +1,97 @@
+#sidebar {
+	width: 350px;
+	height: 100%;
+	background-color: #343a40;
+	color: white;
+	transition: right 0.3s;
+	z-index: 1050;
+	border-left: 1px outset rgba(93, 93, 93, 0.589);
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+.offcanvas button {
+	border: 2px outset rgba(101, 101, 101, 0.197);
+}
+
+.close-btn {
+	top: 10px;
+	left: 10px;
+	cursor: pointer;
+	position: absolute;
+}
+
+div.menu-item {
+	padding: 5px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 50px;
+	background-color: #d3d3d306;
+	margin: 2px;
+	cursor: pointer;
+	border: 2px outset rgb(101, 101, 101);
+}
+
+div.menu-item:hover {
+	background-color: #d3d3d312;
+}
+
+div.menu-item p {
+	margin-bottom: 0;
+	vertical-align: middle;
+}
+
+body.offcanvas-open {
+    width: calc(100% - 350px); /* Dostosuj wartość do szerokości Offcanvas */
+    transition: margin-right 0.3s ease; /* Płynne przejście */
+}
+
+
+.switch-container {
+	display: flex;
+	align-items: center; /* Wyrównanie do środka w pionie */
+  }
+
+.switch {
+	position: relative;
+	width: 25px;
+	height: 12px;
+	margin-top: 4px;
+  }
+  
+  .switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+  }
+  
+  .slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #ccc;
+	transition: .4s;
+	border-radius: 34px;
+  }
+  
+  .slider:before {
+	position: absolute;
+	content: "";
+	height: 8px;
+	width: 8px;
+	left: 4px;
+	bottom: 2px;
+	background-color: white;
+	transition: .4s;
+	border-radius: 50%;
+  }
+  
+  input:checked + .slider {
+	background-color: #2196F3;
+  }
+  
+  input:checked + .slider:before {
+	transform: translateX(10px);
+  }

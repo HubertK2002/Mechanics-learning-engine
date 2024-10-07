@@ -1,0 +1,1 @@
+# Projekt ma na celu umożliwienie edukacji online w zakresie mechaniki ogólnej
