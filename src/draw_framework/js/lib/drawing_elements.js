@@ -27,8 +27,6 @@ export class Triangle {
 export class ShapeContainer {
 	constructor() {
 		this.shapes = JSON.parse(localStorage.getItem('shapes'));
-		//console.log("Hello");
-		//console.log(this.shapes);
 		if(this.shapes == null) {
 			this.shapes = {
 				points: [],
