@@ -48,11 +48,16 @@ export default class draw {
 			float_array.push(point.x);
 			float_array.push(point.y);
 			float_array.push(point.z);
+			const pointName = document.createElement("p");
+			pointName.innerHTML = point.name;
+			pointName.style.top = (100 - ((parseFloat(point.y) + 1) / 2 * 100 )) + "%";
+			pointName.style.left = ((parseFloat(point.x) + 1) / 2 * 100 )+ "%";
+			this.glutils.current.textDiv.appendChild(pointName);
 		});
 		this.initBuffers(float_array);
 		this.getgl().drawArrays(this.getgl().POINTS, 0, points.length);
 	}
-
+	
 	draw_lines(Lines) {
 		var float_array = Array();
 		Lines.forEach(line => {
@@ -85,6 +90,7 @@ export default class draw {
 	}
 
 	update() {
+		this.glutils.current.textDiv.innerHTML = "";
 		this.getgl().clear(this.getgl().COLOR_BUFFER_BIT);
 		this.draw_points(this.getShapesContainer().getPoints());
 		this.draw_lines(this.getShapesContainer().getLines());

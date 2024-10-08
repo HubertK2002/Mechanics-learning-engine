@@ -21,6 +21,7 @@ function Canvas() {
 	return (
 		<div>
 			<canvas id="glcanvas" ref={canvasRef}></canvas>
+			<div id="textdiv"><p>test</p></div>
 		</div>
 	);
 }

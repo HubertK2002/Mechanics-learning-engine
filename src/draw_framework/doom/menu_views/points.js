@@ -15,6 +15,9 @@ const PointEditor = ({ SelectedPoint, refresherParent, refreshParent }) => {
 		} else if (name === 'y') {
 			SelectedPoint.point.y = value;
 			refreshParent(refresherParent+1);
+		} else if (name === "name") {
+			SelectedPoint.point.name = value;
+			refreshParent(refresherParent+1);
 		}
 	};
 
@@ -39,6 +42,15 @@ const PointEditor = ({ SelectedPoint, refresherParent, refreshParent }) => {
 				<input 
 					name="y" 
 					value={SelectedPoint.point.y} 
+					onChange={handleChange}
+					className='w-100'
+				/>
+			</label>
+			<label>
+				Name: 
+				<input 
+					name="name" 
+					value={SelectedPoint.point.name} 
 					onChange={handleChange}
 					className='w-100'
 				/>

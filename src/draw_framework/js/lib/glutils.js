@@ -4,6 +4,7 @@ class glutils {
 	constructor() {
 		this.update = this.update.bind(this);
 		this.canvas = document.getElementById("glcanvas");
+		this.textDiv = document.getElementById("textdiv");
 		this.checkWebGL();
 		this.gl.clearColor(0, 1, 1, 1);
 		var vertexShader = this.getShader(this.gl.VERTEX_SHADER, VSHADER_SOURCE);
@@ -59,6 +60,8 @@ class glutils {
 	update() {
 		this.canvas.width = document.body.clientWidth;
 		this.canvas.height = window.innerHeight;
+		this.textDiv.width = document.body.clientWidth;
+		this.textDiv.height = window.innerHeight;
 		this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 	}
 

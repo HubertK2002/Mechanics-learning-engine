@@ -19,8 +19,14 @@ const Menu = () => {
 
 	const handleCheckboxChange = () => {
 		setPermanent(!permanent);
-		if (!permanent) document.body.classList.add('offcanvas-open');
-		else document.body.classList.remove('offcanvas-open');
+		if (!permanent) {
+			document.body.classList.add('offcanvas-open');
+			document.getElementById('textdiv').classList.add('offcanvas-open');
+		}
+		else {
+			document.body.classList.remove('offcanvas-open');
+			document.getElementById('textdiv').classList.remove('offcanvas-open');
+		}
 		window.dispatchEvent(new Event('resize'));
 	};
 
