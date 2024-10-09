@@ -7,6 +7,7 @@ class SelectedLine {
 	constructor(line, index) {
 		this.line = line;
 		this.index = index;
+		this.line_changed = true;
 	}
 }
 
@@ -22,8 +23,10 @@ const LineEditor = ({ SelectedLine, refresherParent, refreshParent }) => {
 			SelectedLine.line.name = value;
 		} else if (name === "Start") {
 			setSelectedPoint(SelectedLine.line.start);
+			SelectedLine.line_changed = false;
 		} else if (name === "End") {
 			setSelectedPoint(SelectedLine.line.end);
+			SelectedLine.line_changed = false;
 		} else if (name === "draw-points") {
 			SelectedLine.line.draw_points = !SelectedLine.line.draw_points;
 		}
@@ -55,11 +58,11 @@ const LineEditor = ({ SelectedLine, refresherParent, refreshParent }) => {
 				<Button variant="danger" onClick={deleteLine}>Usuń</Button>
 			</div>
 			<div className="line-point-editor">
-				{selectedPoint ? (
+				{selectedPoint && !SelectedLine.line_changed ? (
 				<PointEditor point={selectedPoint} refreshParent={refreshParent} refresherParent={refresherParent}/>
 				) : ""}
 			</div>
-			<label>Rysuj punkty: <input type="checkbox" name="draw-points" onClick={handleChange} value={SelectedLine.line.draw_points}/></label>
+			<label>Rysuj punkty: <input type="checkbox" name="draw-points" onClick={handleChange} checked={SelectedLine.line.draw_points}/></label>
 		</div>
 	);
 };
