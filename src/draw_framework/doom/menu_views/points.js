@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Point as MathPoint } from '../../js/lib/drawing_elements';
 import Button from 'react-bootstrap/Button';
 
-const PointEditor = ({ SelectedPoint, refresherParent, refreshParent }) => {
+export const PointEditor = ({ point, refresherParent, refreshParent }) => {
 	useEffect(() => {
 		window.refresh();
 	});
@@ -10,21 +10,16 @@ const PointEditor = ({ SelectedPoint, refresherParent, refreshParent }) => {
 	const handleChange = (event) => {
 		const { name, value } = event.target;
 		if (name === 'x') {
-			SelectedPoint.point.x = value;
+			point.x = value;
 			refreshParent(refresherParent+1);
 		} else if (name === 'y') {
-			SelectedPoint.point.y = value;
+			point.y = value;
 			refreshParent(refresherParent+1);
 		} else if (name === "name") {
-			SelectedPoint.point.name = value;
+			point.name = value;
 			refreshParent(refresherParent+1);
 		}
 	};
-
-	const deletePoint = () => {
-		window.get_points().splice(SelectedPoint.index, 1);
-		refreshParent(refresherParent + 1);
-	}
 
 	return (
 		<div className="editor">
@@ -32,7 +27,7 @@ const PointEditor = ({ SelectedPoint, refresherParent, refreshParent }) => {
 				X: 
 				<input 
 					name="x" 
-					value={SelectedPoint.point.x} 
+					value={point.x} 
 					onChange={handleChange}
 					className='w-100'
 				/>
@@ -41,7 +36,7 @@ const PointEditor = ({ SelectedPoint, refresherParent, refreshParent }) => {
 				Y: 
 				<input 
 					name="y" 
-					value={SelectedPoint.point.y} 
+					value={point.y} 
 					onChange={handleChange}
 					className='w-100'
 				/>
@@ -50,15 +45,26 @@ const PointEditor = ({ SelectedPoint, refresherParent, refreshParent }) => {
 				Name: 
 				<input 
 					name="name" 
-					value={SelectedPoint.point.name} 
+					value={point.name} 
 					onChange={handleChange}
 					className='w-100'
 				/>
 			</label>
-			<Button variant="danger" onClick={deletePoint}>Usuń</Button>
 		</div>
 	);
 };
+
+export const PointDeleter = ({ index, refresherParent, refreshParent }) => {
+	useEffect(() => {
+		window.refresh();
+	});
+
+	const deletePoint = () => {
+		window.get_points().splice(index, 1);
+		refreshParent(refresherParent + 1);
+	}
+	return (<Button variant="danger" onClick={deletePoint} className="w-75" style={{margin: "5px auto"}}>Usuń</Button>)
+}
 
 class SelectedPoint {
 	constructor(point, index) {
@@ -99,7 +105,10 @@ const Point = () => {
 				{/* Editor dla wybranego punktu */}
 				<div className="d-flex w-50 h-100 flex-column">
 					{selectedPoint ? (
-						<PointEditor SelectedPoint={selectedPoint} refreshParent={refresh} refresherParent={refresher} />
+						<>
+							<PointEditor point={selectedPoint.point} refreshParent={refresh} refresherParent={refresher} />
+							<PointDeleter index={selectedPoint.index} refreshParent={refresh} refresherParent={refresher} />
+						</>
 					) : (
 						<p>Wybierz punkt do edycji</p>
 					)}

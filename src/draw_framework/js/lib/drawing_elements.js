@@ -12,6 +12,8 @@ export class Line {
 		this.start = start;
 		this.end = end;
 		this.z = z;
+		this.name = "";
+		this.draw_points = true;
 	}
 }
 
@@ -39,6 +41,7 @@ export class ShapeContainer {
 		window.add_object = this.add;
 		window.save = this.save_storage;
 		window.get_points = this.getPoints.bind(this);
+		window.get_lines = this.getLines.bind(this);
 	}
 
 	add(shape) {

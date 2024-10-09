@@ -60,6 +60,7 @@ export default class draw {
 	
 	draw_lines(Lines) {
 		var float_array = Array();
+		var points = Array();
 		Lines.forEach(line => {
 			float_array.push(line.start.x);
 			float_array.push(line.start.y);
@@ -67,9 +68,11 @@ export default class draw {
 			float_array.push(line.end.x);
 			float_array.push(line.end.y);
 			float_array.push(line.z);
+			if(line.draw_points) points.push(line.start, line.end);
 		});
 		this.initBuffers(float_array);
 		this.getgl().drawArrays(this.getgl().LINES, 0, Lines.length * 2);
+		this.draw_points(points);
 	}
 
 	draw_triangles(Triangles) {
