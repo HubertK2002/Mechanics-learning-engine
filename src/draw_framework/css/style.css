@@ -12,6 +12,7 @@ div#textdiv {
 	left: 0;
 	width: 100%;
 	height: 100%;
+	overflow: hidden;
   }
 div#textdiv.offcanvas-open {
 	width: calc(100% - 350px);
