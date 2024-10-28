@@ -62,7 +62,7 @@ const LineEditor = ({ SelectedLine, refresherParent, refreshParent }) => {
 				<PointEditor point={selectedPoint} refreshParent={refreshParent} refresherParent={refresherParent}/>
 				) : ""}
 			</div>
-			<label>Rysuj punkty: <input type="checkbox" name="draw-points" onClick={handleChange} checked={SelectedLine.line.draw_points}/></label>
+			<label>Rysuj punkty: <input type="checkbox" name="draw-points" checked={SelectedLine.line.draw_points} onChange={handleChange}/></label>
 		</div>
 	);
 };

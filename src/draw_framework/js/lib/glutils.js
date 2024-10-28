@@ -14,7 +14,7 @@ class glutils {
 		this.update();
 	}
 	checkWebGL() {
-		var contexts = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+		var contexts = ["webgl2", "experimental-webgl", "webkit-3d", "moz-webgl"];
 		for (var i=0; i < contexts.length; i++) {
 			try {
 				this.gl = this.canvas.getContext(contexts[i]);
