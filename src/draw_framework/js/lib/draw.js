@@ -8,6 +8,7 @@ export default class draw {
 		window.addEventListener('resize', this.update);
 		window.refresh = this.update;
 		this.rotation = [0, 1];
+		this.relative_start = [0,0];
 		this.update();
 	}
 
@@ -43,15 +44,17 @@ export default class draw {
 		var colorLocation = this.getgl().getUniformLocation(this.getprogram(), "u_color");
 		var rotationLocation = this.getgl().getUniformLocation(this.getprogram(), "u_rotation");
 		var resolutionUniformLocation = this.getgl().getUniformLocation(this.getprogram(), "u_resolution");
+		var relative_start = this.getgl().getUniformLocation(this.getprogram(), "relative_start");
 
 		this.getgl().vertexAttribPointer(this.aPosition, 2, this.getgl().FLOAT, false, 0, 0);
 		this.getgl().enableVertexAttribArray(this.aPosition);
 		this.getgl().uniform4fv(colorLocation, color);
 		this.getgl().uniform2f(resolutionUniformLocation, this.getgl().canvas.width, this.getgl().canvas.height);
 		this.getgl().uniform2fv(rotationLocation, this.rotation);
-	  }
+		this.getgl().uniform2fv(relative_start, this.relative_start);
+	}
 
-	  draw_points(points) {
+	draw_points(points) {
 		var float_array = Array();
 		points.forEach(point => {
 			float_array.push(point.x);
@@ -67,18 +70,21 @@ export default class draw {
 	}
 	
 	draw_lines(Lines) {
-		var float_array = Array();
-		var points = Array();
 		Lines.forEach(line => {
+			var float_array = Array();
+			var points = Array();
 			float_array.push(line.start.x);
 			float_array.push(line.start.y);
 			float_array.push(line.end.x);
 			float_array.push(line.end.y);
 			if(line.draw_points) points.push(line.start, line.end);
+			this.relative_start[0] = line.start.x;
+			this.relative_start[1] = line.start.y;
+			this.initBuffers(float_array);
+			this.getgl().drawArrays(this.getgl().LINES, 0, 2);
+			this.draw_points(points);
 		});
-		this.initBuffers(float_array);
-		this.getgl().drawArrays(this.getgl().LINES, 0, Lines.length * 2);
-		this.draw_points(points);
+		this.relative_start = [0,0];
 	}
 
 	draw_triangles(Triangles) {
@@ -98,13 +104,17 @@ export default class draw {
 	draw_vectors(Vectors) {
 		var first_arrows = Array();
 		var second_arrows = Array();
+		var lines = Array();
 		Vectors.forEach(vector => {
 			var first_arrow = new Vector(vector.line.rcopy());
 			var second_arrow = new Vector(vector.line.rcopy());
+			var line = vector.line.copy();
+			line.draw_points = false;
+			lines.push(line);
 			first_arrow.unit();
 			second_arrow.unit();
-			first_arrow.multiply(75);
-			second_arrow.multiply(75);
+			first_arrow.multiply(35);
+			second_arrow.multiply(35);
 			first_arrow.line.draw_points = false;
 			second_arrow.line.draw_points = false;
 			first_arrows.push(first_arrow.line);
@@ -116,15 +126,29 @@ export default class draw {
 		this.updateAngle(-30);
 		this.draw_lines(second_arrows);
 		this.updateAngle(0);
+		this.draw_lines(lines);
+	}
+
+	draw_forces(Forces) {
+		var vectors = Array();
+		Forces.forEach(force => {
+			var vector = force.direction.copy();
+			vector.multiply(100);
+			vector.attach(force.point);
+			vectors.push(vector);
+		})
+		this.draw_vectors(vectors);
 	}
 
 	update() {
 		this.glutils.current.textDiv.innerHTML = "";
+		this.relative_start = [0,0];
 		this.getgl().clear(this.getgl().COLOR_BUFFER_BIT);
 		this.draw_points(this.getShapesContainer().getPoints());
 		this.draw_lines(this.getShapesContainer().getLines());
 		this.draw_triangles(this.getShapesContainer().getTriangles());
 		this.draw_vectors(this.getShapesContainer().getVectors());
+		this.draw_forces(this.getShapesContainer().getForces());
 	}
 
 	updateAngle(angle) {

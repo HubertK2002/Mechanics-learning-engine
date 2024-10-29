@@ -10,7 +10,7 @@ const ObjectChanger = ({ObjectType, ObjectSetter}) => {
 	const Objects = new Set();
 	switch(ObjectType) {
 		case 'Point':
-			Objects.add([...window.getPoints()]);
+			window.get_points().forEach(point => Objects.add(point));
 			window.get_lines().forEach(line => {
 				Objects.add(line.start);
 				Objects.add(line.end);
@@ -19,6 +19,8 @@ const ObjectChanger = ({ObjectType, ObjectSetter}) => {
 		case 'Line':
 			window.get_lines().forEach(line => Objects.add(line));
 			break;
+		case 'Vector':
+			window.get_vectors().forEach(vector => Objects.add(vector));
 	}
 
 	const arr = Array.from(Objects).map((object, index) => (

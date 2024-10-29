@@ -75,6 +75,10 @@ export class Vector {
 		this.name = name;
 	}
 
+	copy() {
+		return new Vector(this.line.copy(), this.name);
+	}
+
 	get length() {
 		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
 	}
@@ -122,27 +126,50 @@ export class Vector {
 		v.name = obj.name;
 		return v;
 	}
+
+	static default() {
+		return new Vector(new Line(new Point(-1,-1), new Point(1,1)));
+	}
+}
+
+export class Force {
+	constructor(point, vector, value, name="") {
+		this.point = point;
+		this.direction = vector;
+		this.direction.unit();
+		this.value = Number(value);
+		this.name = name;
+	}
+
+	static deserialize(obj) {
+		var f = new Force(Point.deserialize(obj.point), Vector.deserialize(obj.direction), obj.value);
+		f.name = obj.name;
+		return f;
+	}
+
+	static default() {
+		return new Force(new Point(0,0), Vector.default(), 5);
+	}
 }
 
 export class ShapeContainer {
 	constructor() {
 		this.shapes = JSON.parse(localStorage.getItem('shapes'));
 		if(this.shapes != null) {
+			["points", "lines", "triangles", "vectors", "forces"].forEach(element => {
+				if (!this.shapes[element]) {
+					this.shapes[element] = [];
+				}
+			});
 			this.shapes = {
 				points: this.shapes.points.map(point => Point.deserialize(point)),
 				lines: this.shapes.lines.map(line => Line.deserialize(line)),
 				vectors: this.shapes.vectors.map(vector => Vector.deserialize(vector)),
-				triangles: this.shapes.triangles
+				triangles: this.shapes.triangles,
+				forces: this.shapes.forces.map(force => Force.deserialize(force)),
 			};
-		}
-		if(this.shapes == null) {
-			this.shapes = {
-				points: [],
-				lines: [],
-				triangles: [],
-				vectors: [],
-			};
-		}
+		} else this.shapes = {};
+
 		this.add = this.add.bind(this);
 		this.save_storage = this.save_storage.bind(this);
 		window.add_object = this.add;
@@ -150,6 +177,7 @@ export class ShapeContainer {
 		window.get_points = this.getPoints.bind(this);
 		window.get_lines = this.getLines.bind(this);
 		window.get_vectors = this.getVectors.bind(this);
+		window.get_forces = this.getForces.bind(this);
 	}
 
 	add(shape) {
@@ -163,6 +191,8 @@ export class ShapeContainer {
 			if(this.shapes.vectors == undefined)
 				this.shapes.vectors = Array();
 			this.shapes.vectors.push(shape);
+		} else if(shape instanceof Force) {
+			this.shapes.forces.push(shape);
 		} else {
 			throw new Error("Unknown shape type");
 		}
@@ -185,5 +215,8 @@ export class ShapeContainer {
 	}
 	getVectors() {
 		return this.shapes.vectors;
+	}
+	getForces() {
+		return this.shapes.forces;
 	}
 }
