@@ -130,6 +130,10 @@ export class Vector {
 	static default() {
 		return new Vector(new Line(new Point(-1,-1), new Point(1,1)));
 	}
+
+	static zero() {
+		return new Vector(new Line(new Point(0,0), new Point(0,0)));
+	}
 }
 
 export class Force {
@@ -152,11 +156,52 @@ export class Force {
 	}
 }
 
+export class SuperPosition {
+	constructor() {
+		this.Vectors = Array();
+		this.name = "";
+	}
+
+	add(vector) {
+		this.Vectors.push(vector);
+		this.count_super();
+	}
+
+	count_super() {
+		this.super_vector = Vector.zero();
+		this.Vectors.forEach(vector => {
+			this.super_vector.x += vector.x;
+			this.super_vector.y += vector.y;
+			this.super_vector.z += vector.z;
+		})
+
+		let super_end = this.Vectors[0].line.start.copy();
+		super_end.move(this.super_vector);
+		this.super_vector = new Vector(new Line(new Point(this.Vectors[0].line.start), new Point(this.super_end)));
+	}
+
+	set_start_point(point) {
+		this.start_point = point;
+	}
+
+	static deserialize(vectors_arr, super_position) {
+		let sp = new SuperPosition();
+		sp.name = super_position.name;
+		if(super_position.start_point != null)
+			sp.start_point = Point.deserialize(super_position.start_point);
+		
+		super_position.Vectors.forEach(vector => {
+			sp.add(Vector.deserialize(vector));
+		})
+		return sp;
+	}
+}
+
 export class ShapeContainer {
 	constructor() {
 		this.shapes = JSON.parse(localStorage.getItem('shapes'));
 		if(this.shapes != null) {
-			["points", "lines", "triangles", "vectors", "forces"].forEach(element => {
+			["points", "lines", "triangles", "vectors", "forces", "super_positions"].forEach(element => {
 				if (!this.shapes[element]) {
 					this.shapes[element] = [];
 				}
@@ -167,7 +212,9 @@ export class ShapeContainer {
 				vectors: this.shapes.vectors.map(vector => Vector.deserialize(vector)),
 				triangles: this.shapes.triangles,
 				forces: this.shapes.forces.map(force => Force.deserialize(force)),
+				super_positions: this.shapes.super_positions
 			};
+			this.shapes.super_positions = this.shapes.super_positions.map(sp => SuperPosition.deserialize(this.shapes.vectors, sp));
 		} else this.shapes = {};
 
 		this.add = this.add.bind(this);
@@ -178,6 +225,7 @@ export class ShapeContainer {
 		window.get_lines = this.getLines.bind(this);
 		window.get_vectors = this.getVectors.bind(this);
 		window.get_forces = this.getForces.bind(this);
+		window.get_super_positions = this.getSuperPositions.bind(this);
 	}
 
 	add(shape) {
@@ -193,6 +241,8 @@ export class ShapeContainer {
 			this.shapes.vectors.push(shape);
 		} else if(shape instanceof Force) {
 			this.shapes.forces.push(shape);
+		} else if (shape instanceof SuperPosition) {
+			this.shapes.super_positions.push(shape);
 		} else {
 			throw new Error("Unknown shape type");
 		}
@@ -218,5 +268,8 @@ export class ShapeContainer {
 	}
 	getForces() {
 		return this.shapes.forces;
+	}
+	getSuperPositions() {
+		return this.shapes.super_positions;
 	}
 }

@@ -140,6 +140,37 @@ export default class draw {
 		this.draw_vectors(vectors);
 	}
 
+	draw_super_positions(Sps) {
+		Sps.forEach(Sp => {
+			this.draw_super_position(Sp);
+		})
+	}
+
+	draw_super_position(Sp) {
+		if(Sp.length == 0) return;
+		var vectors = Array();
+		var last_end;
+		if(Sp.start_point != null) {
+			last_end = Sp.start_point.copy();
+			last_end.move(Sp.Vectors[0]);
+			var vec = new Vector(new Line(Sp.start_point, last_end));
+			vectors.push(vec);
+		}
+		else {
+			last_end = Sp.Vectors[0].line.end;
+			vectors.push(Sp.Vectors[0]);
+		}
+
+		for(let i = 1; i < Sp.Vectors.length; i++) {
+			var new_end = last_end.copy();
+			new_end.move(Sp.Vectors[i]);
+			var vec = new Vector(new Line(last_end, new_end));
+			vectors.push(vec);
+			last_end = new_end;
+		}
+		this.draw_vectors(vectors);
+	}
+
 	update() {
 		this.glutils.current.textDiv.innerHTML = "";
 		this.relative_start = [0,0];
@@ -149,6 +180,7 @@ export default class draw {
 		this.draw_triangles(this.getShapesContainer().getTriangles());
 		this.draw_vectors(this.getShapesContainer().getVectors());
 		this.draw_forces(this.getShapesContainer().getForces());
+		this.draw_super_positions(this.getShapesContainer().getSuperPositions());
 	}
 
 	updateAngle(angle) {

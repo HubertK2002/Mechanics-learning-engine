@@ -21,6 +21,8 @@ const ObjectChanger = ({ObjectType, ObjectSetter}) => {
 			break;
 		case 'Vector':
 			window.get_vectors().forEach(vector => Objects.add(vector));
+		case 'SuperPosition':
+			window.get_vectors().forEach(vector => Objects.add(vector));
 	}
 
 	const arr = Array.from(Objects).map((object, index) => (
