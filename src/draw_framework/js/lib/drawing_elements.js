@@ -189,7 +189,7 @@ export class SuperPosition {
 		sp.name = super_position.name;
 		if(super_position.start_point != null)
 			sp.start_point = Point.deserialize(super_position.start_point);
-		
+
 		super_position.Vectors.forEach(vector => {
 			sp.add(Vector.deserialize(vector));
 		})
@@ -198,8 +198,9 @@ export class SuperPosition {
 }
 
 export class ShapeContainer {
-	constructor() {
-		this.shapes = JSON.parse(localStorage.getItem('shapes'));
+	constructor(shapeStorage) {
+		this.shapeStorage = shapeStorage;
+		this.shapes = JSON.parse(localStorage.getItem(shapeStorage));
 		if(this.shapes != null) {
 			["points", "lines", "triangles", "vectors", "forces", "super_positions"].forEach(element => {
 				if (!this.shapes[element]) {
@@ -215,17 +216,30 @@ export class ShapeContainer {
 				super_positions: this.shapes.super_positions
 			};
 			this.shapes.super_positions = this.shapes.super_positions.map(sp => SuperPosition.deserialize(this.shapes.vectors, sp));
-		} else this.shapes = {};
+		} else {
+			this.shapes = {};
+			["points", "lines", "triangles", "vectors", "forces", "super_positions"].forEach(element => {
+				if (!this.shapes[element]) {
+					this.shapes[element] = [];
+				}
+			});
+		}
 
+		this.bind();
+	}
+
+	bind() {
 		this.add = this.add.bind(this);
 		this.save_storage = this.save_storage.bind(this);
 		window.add_object = this.add;
 		window.save = this.save_storage;
 		window.get_points = this.getPoints.bind(this);
 		window.get_lines = this.getLines.bind(this);
+		window.get_triangles = this.getTriangles.bind(this);
 		window.get_vectors = this.getVectors.bind(this);
 		window.get_forces = this.getForces.bind(this);
 		window.get_super_positions = this.getSuperPositions.bind(this);
+		window.set_elements = true;
 	}
 
 	add(shape) {
@@ -249,7 +263,7 @@ export class ShapeContainer {
 	}
 
 	save_storage() {
-		localStorage.setItem('shapes', JSON.stringify(this.shapes));
+		localStorage.setItem(this.shapeStorage, JSON.stringify(this.shapes));
 	}
 
 	getPoints() {

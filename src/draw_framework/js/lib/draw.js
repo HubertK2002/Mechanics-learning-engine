@@ -1,12 +1,11 @@
 import {Point, Line, Triangle, Vector} from "./drawing_elements.js";
 
 export default class draw {
-	constructor(glutils, ShapesContainer) {
+	constructor(glutils) {
 		this.glutils = glutils;
-		this.ShapesContainer = ShapesContainer;
 		this.update = this.update.bind(this);
 		window.addEventListener('resize', this.update);
-		window.refresh = this.update;
+		window.refreshScene = this.update;
 		this.rotation = [0, 1];
 		this.relative_start = [0,0];
 		this.update();
@@ -17,9 +16,6 @@ export default class draw {
 	}
 	getprogram() {
 		return this.glutils.current.program;
-	}
-	getShapesContainer() {
-		return this.ShapesContainer.current;
 	}
 	
 	initBuffers(points_array) {
@@ -175,12 +171,13 @@ export default class draw {
 		this.glutils.current.textDiv.innerHTML = "";
 		this.relative_start = [0,0];
 		this.getgl().clear(this.getgl().COLOR_BUFFER_BIT);
-		this.draw_points(this.getShapesContainer().getPoints());
-		this.draw_lines(this.getShapesContainer().getLines());
-		this.draw_triangles(this.getShapesContainer().getTriangles());
-		this.draw_vectors(this.getShapesContainer().getVectors());
-		this.draw_forces(this.getShapesContainer().getForces());
-		this.draw_super_positions(this.getShapesContainer().getSuperPositions());
+		if(!window.set_elements) return;
+		this.draw_points(window.get_points());
+		this.draw_lines(window.get_lines());
+		this.draw_triangles(window.get_triangles());
+		this.draw_vectors(window.get_vectors());
+		this.draw_forces(window.get_forces());
+		this.draw_super_positions(window.get_super_positions());
 	}
 
 	updateAngle(angle) {

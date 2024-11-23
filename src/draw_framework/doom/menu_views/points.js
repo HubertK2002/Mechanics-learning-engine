@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 
 export const PointEditor = ({ point, refresherParent, refreshParent }) => {
 	useEffect(() => {
-		window.refresh();
+		window.refreshScene();
 	});
 
 	const handleChange = (event) => {
@@ -56,7 +56,7 @@ export const PointEditor = ({ point, refresherParent, refreshParent }) => {
 
 export const PointDeleter = ({ index, refresherParent, refreshParent }) => {
 	useEffect(() => {
-		window.refresh();
+		window.refreshScene();
 	});
 
 	const deletePoint = () => {
