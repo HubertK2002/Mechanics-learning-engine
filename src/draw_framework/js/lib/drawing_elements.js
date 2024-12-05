@@ -1,5 +1,12 @@
-export class Point {
+import { Vec3 } from "../../math/vec3";
+import { Bar } from "../../objects/bar";
+import { Base } from "../../objects/base";
+import { linear_bond } from "../../objects/bonds/linear_bond";
+import { Gravitational_field } from "../../objects/gravitational_field";
+
+export class Point extends Base {
 	constructor(x,y,z = 0) {
+		super();
 		this.x = Number(x);
 		this.y = Number(y);
 		this.z = Number(z);
@@ -29,8 +36,9 @@ export class Point {
 	}
 }
 
-export class Line {
+export class Line extends Base {
 	constructor(start, end, z = 0) {
+		super();
 		this.start = start;
 		this.end = end;
 		this.z = z;
@@ -44,6 +52,11 @@ export class Line {
 
 	rcopy() {
 		return new Line(this.end.copy(), this.start.copy());
+	}
+
+	set(line) {
+		this.start.set(line.start);
+		this.end.set(line.end);
 	}
 
 	static deserialize(obj) {
@@ -65,13 +78,11 @@ export class Triangle {
 	}
 }
 
-export class Vector {
+export class Vector extends Base {
 	constructor(line, name = "") {
+		super();
 		this.line = line;
 		this.line.name = name;
-		this.x = line.end.x - line.start.x;
-		this.y = line.end.y - line.start.y;
-		this.z = line.end.z - line.start.z;
 		this.name = name;
 	}
 
@@ -79,8 +90,24 @@ export class Vector {
 		return new Vector(this.line.copy(), this.name);
 	}
 
+	get x() {
+		return this.line.end.x - this.line.start.x;
+	}
+
+	get y() {
+		return this.line.end.y - this.line.start.y;
+	}
+
+	get z() {
+		return this.line.end.z - this.line.start.z;
+	}
+
 	get length() {
 		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+	}
+
+	set(vector) {
+		this.line.set(vector.line);
 	}
 
 	cross(Vector2) {
@@ -92,9 +119,12 @@ export class Vector {
 	}
 
 	attach(point) {
+		var x = this.x;
+		var y = this.y;
+		var z = this.z;
 		this.line.start.set(point);
 		this.line.end.set(point);
-		this.line.end.move(new Point(this.x, this.y, this.z));
+		this.line.end.move(new Point(x, y, z));
 	}
 
 	rotate2D(angle) {
@@ -102,23 +132,24 @@ export class Vector {
 		var angle_radians = Math.PI * angle / 180;
 		this.line.end.x += -Number(Math.cos(angle_radians)) + Number(Math.sin(angle_radians));
 		this.line.end.y += - Number(Math.sin(angle_radians)) - Number(Math.cos(angle_radians));
-		this.x = this.line.end.x - this.line.start.x;
-		this.y = this.line.end.y - this.line.start.y;
 	}
 
 	unit() {
 		var len = this.length;
-		this.x /= len;
-		this.y /= len;
-		this.z /= len;
-		this.attach(this.line.start);
+		var x = this.x / len;
+		var y = this.y / len;
+		var z = this.z / len;
+		this.line.end.set(this.line.start);
+		this.line.end.move(new Vec3(x,y,z));
 	}
 
 	multiply(number) {
-		this.x *= number;
-		this.y *= number;
-		this.z *= number;
-		this.attach(this.line.start);
+		var x = this.x * number;
+		var y =  this.y * number;
+		var z =  this.z * number;
+
+		this.line.end.set(this.line.start);
+		this.line.end.move(new Vec3(x,y,z));
 	}
 
 	static deserialize(obj) {
@@ -136,17 +167,19 @@ export class Vector {
 	}
 }
 
-export class Force {
+export class Force extends Base {
 	constructor(point, vector, value, name="") {
-		this.point = point;
+		super();
 		this.direction = vector;
 		this.direction.unit();
 		this.value = Number(value);
 		this.name = name;
+		this.Anchor_point = point;
+		this.hook = false;
 	}
 
 	static deserialize(obj) {
-		var f = new Force(Point.deserialize(obj.point), Vector.deserialize(obj.direction), obj.value);
+		var f = new Force(Point.deserialize(obj.Anchor_point), Vector.deserialize(obj.direction), obj.value);
 		f.name = obj.name;
 		return f;
 	}
@@ -154,10 +187,16 @@ export class Force {
 	static default() {
 		return new Force(new Point(0,0), Vector.default(), 5);
 	}
+
+	set_start_point(point) {
+		this.Anchor_point = point.copy();
+		this.hook = true;
+	}
 }
 
-export class SuperPosition {
+export class SuperPosition extends Base {
 	constructor() {
+		super();
 		this.Vectors = Array();
 		this.name = "";
 	}
@@ -202,7 +241,7 @@ export class ShapeContainer {
 		this.shapeStorage = shapeStorage;
 		this.shapes = JSON.parse(localStorage.getItem(shapeStorage));
 		if(this.shapes != null) {
-			["points", "lines", "triangles", "vectors", "forces", "super_positions"].forEach(element => {
+			["points", "lines", "triangles", "vectors", "forces", "super_positions", "bars", "gf", "lb"].forEach(element => {
 				if (!this.shapes[element]) {
 					this.shapes[element] = [];
 				}
@@ -213,12 +252,16 @@ export class ShapeContainer {
 				vectors: this.shapes.vectors.map(vector => Vector.deserialize(vector)),
 				triangles: this.shapes.triangles,
 				forces: this.shapes.forces.map(force => Force.deserialize(force)),
-				super_positions: this.shapes.super_positions
+				super_positions: this.shapes.super_positions,
+				bars: this.shapes.bars.map(bar => Bar.deserialize(bar)),
+				gf: this.shapes.gf.map(gfi => Gravitational_field.deserialize(gfi)),
+				lb: this.shapes.lb.map(lbi => linear_bond.deserialize(lbi))
+
 			};
 			this.shapes.super_positions = this.shapes.super_positions.map(sp => SuperPosition.deserialize(this.shapes.vectors, sp));
 		} else {
 			this.shapes = {};
-			["points", "lines", "triangles", "vectors", "forces", "super_positions"].forEach(element => {
+			["points", "lines", "triangles", "vectors", "forces", "super_positions", "bars", "gf", "lb"].forEach(element => {
 				if (!this.shapes[element]) {
 					this.shapes[element] = [];
 				}
@@ -239,6 +282,9 @@ export class ShapeContainer {
 		window.get_vectors = this.getVectors.bind(this);
 		window.get_forces = this.getForces.bind(this);
 		window.get_super_positions = this.getSuperPositions.bind(this);
+		window.get_bars = this.getBars.bind(this);
+		window.get_gravitations = this.getGravitationalFields.bind(this);
+		window.get_bonds = this.getLinearBonds.bind(this);
 		window.set_elements = true;
 	}
 
@@ -257,8 +303,15 @@ export class ShapeContainer {
 			this.shapes.forces.push(shape);
 		} else if (shape instanceof SuperPosition) {
 			this.shapes.super_positions.push(shape);
+		} else if (shape instanceof Bar) {
+			this.shapes.bars.push(shape);
+		} else if (shape instanceof Gravitational_field) {
+			this.shapes.gf.push(shape);
+		} else if (shape instanceof linear_bond) {
+			this.shapes.lb.push(shape);
 		} else {
-			throw new Error("Unknown shape type");
+			console.log(shape);
+			throw new Error("Unknown shape type" + shape);
 		}
 	}
 
@@ -285,5 +338,14 @@ export class ShapeContainer {
 	}
 	getSuperPositions() {
 		return this.shapes.super_positions;
+	}
+	getBars() {
+		return this.shapes.bars;
+	}
+	getGravitationalFields() {
+		return this.shapes.gf;
+	}
+	getLinearBonds() {
+		return this.shapes.lb;
 	}
 }

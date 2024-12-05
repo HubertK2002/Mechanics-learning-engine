@@ -130,7 +130,7 @@ export default class draw {
 		Forces.forEach(force => {
 			var vector = force.direction.copy();
 			vector.multiply(100);
-			vector.attach(force.point);
+			vector.attach(force.Anchor_point);
 			vectors.push(vector);
 		})
 		this.draw_vectors(vectors);
@@ -143,7 +143,7 @@ export default class draw {
 	}
 
 	draw_super_position(Sp) {
-		if(Sp.length == 0) return;
+		if(Sp.Vectors.length == 0) return;
 		var vectors = Array();
 		var last_end;
 		if(Sp.start_point != null) {
@@ -167,6 +167,20 @@ export default class draw {
 		this.draw_vectors(vectors);
 	}
 
+	draw_bars(bars) {
+		var lines = Array();
+		bars.forEach(bar => {
+			lines.push(new Line(bar.Position, bar.EndPosition));
+		})
+		this.draw_lines(lines);
+	}
+
+	draw_bonds(bonds) {
+		bonds.forEach(bond => {
+			this.draw_vectors(Array(bond.Vec));
+		})
+	}
+
 	update() {
 		this.glutils.current.textDiv.innerHTML = "";
 		this.relative_start = [0,0];
@@ -178,6 +192,8 @@ export default class draw {
 		this.draw_vectors(window.get_vectors());
 		this.draw_forces(window.get_forces());
 		this.draw_super_positions(window.get_super_positions());
+		this.draw_bars(window.get_bars());
+		this.draw_bonds(window.get_bonds());
 	}
 
 	updateAngle(angle) {
