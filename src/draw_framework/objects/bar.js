@@ -9,6 +9,7 @@ export class Bar extends Base {
 		this.Length = LengthVector;
 		this.mass = 1;
 		this.name ="belka";
+		this.reactions = Array();
 	}
 
 	get EndPosition() {

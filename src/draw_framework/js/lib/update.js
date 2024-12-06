@@ -1,5 +1,6 @@
-import { line_cross_points, in_range } from "./lines_cross_point";
-import { Line } from "./drawing_elements";
+import { line_cross_points, in_range, line_parameters_from_points } from "./lines_cross_point";
+import { Point, Line, Vector, Force } from "./drawing_elements";
+import { line, perpendicular_line } from "../../objects/bonds/perpendicular_line";
 
 export class update {
 	constructor() {
@@ -14,6 +15,7 @@ export class update {
 		var gravitations = window.get_gravitations();
 		var bonds = window.get_bonds();
 		if(gravitations.count == 0) return;
+		window.get_forces().length = 0;
 		gravitations.forEach(gf => {
 			bars.forEach(bar => {
 				var collide = false;
@@ -21,9 +23,15 @@ export class update {
 					var barEndPositionCopy = bar.EndPosition.copy();
 					barEndPositionCopy.move(gf.gravitaionVector);
 					var crossPoint = line_cross_points.fromLines(bond.Vec.line, new Line(bar.Position, bar.EndPosition));
-					console.log(in_range(crossPoint[0], bar.Position.x, barEndPositionCopy.x));
-					if( !collide && in_range(crossPoint[0], bar.Position.x, bar.EndPosition.x)) {
+					if(in_range(crossPoint[0], bar.Position.x, bar.EndPosition.x)) {
 						collide = true;
+						var a = perpendicular_line.get_directional_coefficient(bond.Vec.line);
+						var b = line.get_free_parameter(crossPoint, a);
+						var l = line.get_line_from_parameters(a,b);
+						var vector = new Vector(l);
+						var f = new Force(new Point(crossPoint[0], crossPoint[1]), vector, 5);
+						f.set_start_point(new Point(crossPoint[0], crossPoint[1]));
+						window.add_object(f);
 					}
 				})
 				if(!collide) {
